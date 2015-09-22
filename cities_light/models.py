@@ -71,16 +71,16 @@ That's all!
 """
 
 # some imports are present for backwards compatibility and migration process
-from .abstract_models import (AbstractCountry, AbstractRegion, AbstractCity,
+from .abstract_models import (AbstractCountry, AbstractRegion, AbstractCity, AbstractCommune,
     ToSearchTextField, CONTINENT_CHOICES, to_search, to_ascii)
 from .signals import *
 from .receivers import *
 from .settings import *
 
-__all__ = ['CONTINENT_CHOICES', 'to_search', 'to_ascii', 'filter_non_cities',
+__all__ = ['CONTINENT_CHOICES', 'to_search', 'to_ascii', 'filter_non_cities', 'filter_non_communes',
     'filter_non_included_countries_country',
     'filter_non_included_countries_region',
-    'filter_non_included_countries_city']
+    'filter_non_included_countries_city',]
 
 if CITIES_LIGHT_APP_NAME == DEFAULT_APP_NAME:
     class Country(AbstractCountry):
@@ -100,3 +100,9 @@ if CITIES_LIGHT_APP_NAME == DEFAULT_APP_NAME:
     connect_default_signals(City)
 
     __all__.append('City')
+
+    class Commune(AbstractCommune):
+        pass
+    connect_default_signals(Commune)
+
+    __all__.append('Commune')
