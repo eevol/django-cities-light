@@ -89,13 +89,13 @@ __all__ = ['COUNTRY_SOURCES', 'REGION_SOURCES', 'CITY_SOURCES', 'COMMUNE_SOURCES
     'IAlternate']
 
 COUNTRY_SOURCES = getattr(settings, 'CITIES_LIGHT_COUNTRY_SOURCES',
-    ['http://download.geonames.org/export/dump/countryInfo.txt']),
+    ['http://download.geonames.org/export/dump/countryInfo.txt'])
 REGION_SOURCES = getattr(settings, 'CITIES_LIGHT_REGION_SOURCES',
-    ['http://download.geonames.org/export/dump/admin1CodesASCII.txt']),
+    ['http://download.geonames.org/export/dump/admin1CodesASCII.txt'])
 COMMUNE_SOURCES = getattr(settings, 'CITIES_LIGHT_COMMUNE_SOURCES',
-    ['http://download.geonames.org/export/dump/cities15000.zip']),
+    ['http://download.geonames.org/export/dump/cities15000.zip'])
 CITY_SOURCES = getattr(settings, 'CITIES_LIGHT_CITY_SOURCES',
-    ['http://download.geonames.org/export/dump/cities15000.zip']),
+    ['http://download.geonames.org/export/dump/cities15000.zip'])
 TRANSLATION_SOURCES = getattr(settings, 'CITIES_LIGHT_TRANSLATION_SOURCES',
     ['http://download.geonames.org/export/dump/alternateNames.zip'])
 TRANSLATION_LANGUAGES = getattr(settings, 'CITIES_LIGHT_TRANSLATION_LANGUAGES',
