@@ -6,7 +6,7 @@ from .loading import get_cities_models
 
 Country, Region, City, Commune = get_cities_models()
 
-__all__ = ['CountryForm', 'RegionForm', 'CityForm']
+__all__ = ['CountryForm', 'RegionForm', 'CityForm', 'CommuneForm']
 
 
 class CountryForm(forms.ModelForm):
