@@ -108,7 +108,7 @@ def filter_non_communes(sender, items, **kwargs):
     """
     if 'ADM3' not in items[8]:
         raise InvalidItems()
-city_items_pre_import.connect(filter_non_communes)
+commune_items_pre_import.connect(filter_non_communes)
 
 
 def filter_non_included_countries_country(sender, items, **kwargs):
