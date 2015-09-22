@@ -28,7 +28,7 @@ from ...settings import *
 from ...geonames import Geonames
 from ...loading import get_cities_models
 
-Country, Region, City = get_cities_models()
+Country, Region, City, Commune = get_cities_models()
 
 
 class MemoryUsageWidget(progressbar.Widget):
@@ -161,19 +161,24 @@ It is possible to force the import of files which weren't downloaded using the
                 for items in geonames.parse():
                     if url in CITY_SOURCES:
                         self.city_import(items)
-                    elif url in REGION_SOURCES:
+                        reset_queries()
+                    if url in COMMUNE_SOURCES:
+                        self.commune_import(items)
+                        reset_queries()
+                    if url in REGION_SOURCES:
                         self.region_import(items)
-                    elif url in COUNTRY_SOURCES:
+                        reset_queries()
+                    if url in COUNTRY_SOURCES:
                         self.country_import(items)
-                    elif url in TRANSLATION_SOURCES:
+                        reset_queries()
+                    if url in TRANSLATION_SOURCES:
                         # free some memory
                         if getattr(self, '_country_codes', False):
                             del self._country_codes
                         if getattr(self, '_region_codes', False):
                             del self._region_codes
                         self.translation_parse(items)
-
-                    reset_queries()
+                        reset_queries()
 
                     i += 1
                     progress.update(i)
@@ -393,18 +398,114 @@ It is possible to force the import of files which weren't downloaded using the
         if save:
             self.save(city)
 
+    def commune_import(self, items):
+        try:
+            commune_items_pre_import.send(sender=self, items=items)
+        except InvalidItems:
+            return
+
+        try:
+            country_id = self._get_country_id(items[ICommune.countryCode])
+        except Country.DoesNotExist:
+            if self.noinsert:
+                return
+            else:
+                raise
+
+        try:
+            kwargs = dict(name=force_text(items[ICommune.name]),
+                          country_id=self._get_country_id(items[ICommune.countryCode]))
+        except Country.DoesNotExist:
+            if self.noinsert:
+                return
+            else:
+                raise
+
+        try:
+            kwargs['region_id'] = self._get_region_id(items[ICommune.countryCode],
+                                                      items[ICommune.admin1Code])
+        except Region.DoesNotExist:
+            pass
+
+        try:
+            try:
+                commune = Commune.objects.get(**kwargs)
+            except Commune.MultipleObjectsReturned:
+                if 'region_id' not in kwargs:
+                    self.logger.warn(
+                        'Skipping because of invalid region: %s' % items)
+                    return
+                else:
+                    raise
+
+        except Commune.DoesNotExist:
+            try:
+                commune = Commune.objects.get(geoname_id=items[ICommune.geonameid])
+                commune.name = force_text(items[ICommune.name])
+                commune.country_id = self._get_country_id(
+                    items[ICommune.countryCode])
+            except Commune.DoesNotExist:
+                if self.noinsert:
+                    return
+
+                commune = Commune(**kwargs)
+
+        save = False
+        if not commune.region_id and 'region_id' in kwargs:
+            commune.region_id = kwargs['region_id']
+            save = True
+
+        if not commune.name_ascii:
+            # useful for cities with chinese names
+            commune.name_ascii = items[ICommune.asciiName]
+            save = True
+
+        if not commune.latitude:
+            commune.latitude = items[ICommune.latitude]
+            save = True
+
+        if not commune.longitude:
+            commune.longitude = items[ICommune.longitude]
+            save = True
+
+        if not commune.population:
+            commune.population = items[ICommune.population]
+            save = True
+
+        if not commune.feature_code:
+            commune.feature_code = items[ICommune.featureCode]
+            save = True
+
+        if not TRANSLATION_SOURCES and not commune.alternate_names:
+            commune.alternate_names = force_text(items[ICommune.alternateNames])
+            save = True
+
+        if not commune.geoname_id:
+            # city may have been added manually
+            commune.geoname_id = items[ICommune.geonameid]
+            save = True
+
+        commune_items_post_import.send(sender=self, instance=commune,
+                                    items=items, save=save)
+
+        if save:
+            self.save(commune)
+
+
     def translation_parse(self, items):
         if not hasattr(self, 'translation_data'):
             self.country_ids = Country.objects.values_list('geoname_id',
                 flat=True)
             self.region_ids = Region.objects.values_list('geoname_id',
                 flat=True)
+            self.commune_ids = Commune.objects.values_list('geoname_id', flat=True)
             self.city_ids = City.objects.values_list('geoname_id', flat=True)
 
             self.translation_data = {
                 Country: {},
                 Region: {},
                 City: {},
+                Commune: {},
             }
 
         connection.close()
@@ -428,6 +529,8 @@ It is possible to force the import of files which weren't downloaded using the
             model_class = Country
         elif item_geoid in self.region_ids:
             model_class = Region
+        elif item_geoid in self.commune_ids:
+            model_class = Commune
         elif item_geoid in self.city_ids:
             model_class = City
         else:

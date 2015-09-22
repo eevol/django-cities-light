@@ -82,16 +82,18 @@ import os.path
 
 from django.conf import settings
 
-__all__ = ['COUNTRY_SOURCES', 'REGION_SOURCES', 'CITY_SOURCES',
+__all__ = ['COUNTRY_SOURCES', 'REGION_SOURCES', 'CITY_SOURCES', 'COMMUNE_SOURCES',
     'TRANSLATION_LANGUAGES', 'TRANSLATION_SOURCES', 'SOURCES', 'DATA_DIR',
     'INDEX_SEARCH_NAMES', 'INCLUDE_COUNTRIES', 'DEFAULT_APP_NAME',
-    'CITIES_LIGHT_APP_NAME', 'ICountry', 'IRegion', 'ICity',
+    'CITIES_LIGHT_APP_NAME', 'ICountry', 'IRegion', 'ICity', 'ICommune',
     'IAlternate']
 
 COUNTRY_SOURCES = getattr(settings, 'CITIES_LIGHT_COUNTRY_SOURCES',
     ['http://download.geonames.org/export/dump/countryInfo.txt'])
 REGION_SOURCES = getattr(settings, 'CITIES_LIGHT_REGION_SOURCES',
     ['http://download.geonames.org/export/dump/admin1CodesASCII.txt'])
+COMMUNE_SOURCES = getattr(settings, 'CITIES_LIGHT_COMMUNE_SOURCES',
+    ['http://download.geonames.org/export/dump/cities15000.zip'])
 CITY_SOURCES = getattr(settings, 'CITIES_LIGHT_CITY_SOURCES',
     ['http://download.geonames.org/export/dump/cities15000.zip'])
 TRANSLATION_SOURCES = getattr(settings, 'CITIES_LIGHT_TRANSLATION_SOURCES',
@@ -99,7 +101,7 @@ TRANSLATION_SOURCES = getattr(settings, 'CITIES_LIGHT_TRANSLATION_SOURCES',
 TRANSLATION_LANGUAGES = getattr(settings, 'CITIES_LIGHT_TRANSLATION_LANGUAGES',
     ['es', 'en', 'pt', 'de', 'pl', 'abbr'])
 
-SOURCES = list(COUNTRY_SOURCES) + list(REGION_SOURCES) + list(CITY_SOURCES)
+SOURCES = list(COUNTRY_SOURCES) + list(REGION_SOURCES) + list(COMMUNE_SOURCES) + list(CITY_SOURCES)
 SOURCES += TRANSLATION_SOURCES
 
 DATA_DIR = getattr(settings, 'CITIES_LIGHT_DATA_DIR',
@@ -154,6 +156,31 @@ class IRegion:
     name = 1
     asciiName = 2
     geonameid = 3
+
+
+class ICommune:
+    """
+    Commune field indexes in geonames.
+    """
+    geonameid = 0
+    name = 1
+    asciiName = 2
+    alternateNames = 3
+    latitude = 4
+    longitude = 5
+    featureClass = 6
+    featureCode = 7
+    countryCode = 8
+    cc2 = 9
+    admin1Code = 10
+    admin2Code = 11
+    admin3Code = 12
+    admin4Code = 13
+    population = 14
+    elevation = 15
+    gtopo30 = 16
+    timezone = 17
+    modificationDate = 18
 
 
 class ICity:

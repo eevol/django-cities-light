@@ -21,6 +21,10 @@ Signals for this application.
     Note: this signal gets a list rather than a City instance for performance
     reasons.
 
+.. py:data:: commune_items_pre_import
+
+    Same as :py:data:`~cities_light.signals.city_items_pre_import`.
+
 .. py:data:: region_items_pre_import
 
     Same as :py:data:`~cities_light.signals.city_items_pre_import`.
@@ -46,6 +50,10 @@ Signals for this application.
 
         cities_light.signals.city_items_post_import.connect(process_city_import)
 
+.. py:data:: commune_items_post_import
+
+    Same as :py:data:`~cities_light.signals.commune_items_post_import`.
+
 .. py:data:: region_items_post_import
 
     Same as :py:data:`~cities_light.signals.city_items_post_import`.
@@ -59,15 +67,18 @@ from __future__ import unicode_literals
 
 import django.dispatch
 
-__all__ = ['city_items_pre_import', 'region_items_pre_import',
-           'country_items_pre_import', 'city_items_post_import',
+__all__ = ['city_items_pre_import', 'commune_items_pre_import', 'region_items_pre_import',
+           'country_items_pre_import', 'city_items_post_import', 'commune_items_post_import',
            'region_items_post_import', 'country_items_post_import']
 
 city_items_pre_import = django.dispatch.Signal(providing_args=['items'])
+commune_items_pre_import = django.dispatch.Signal(providing_args=['items'])
 region_items_pre_import = django.dispatch.Signal(providing_args=['items'])
 country_items_pre_import = django.dispatch.Signal(providing_args=['items'])
 
 city_items_post_import = django.dispatch.Signal(
+    providing_args=['instance', 'items'])
+commune_items_post_import = django.dispatch.Signal(
     providing_args=['instance', 'items'])
 region_items_post_import = django.dispatch.Signal(
     providing_args=['instance', 'items'])

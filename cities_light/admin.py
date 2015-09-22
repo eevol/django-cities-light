@@ -10,7 +10,7 @@ from .settings import *
 from .abstract_models import to_search
 from .loading import get_cities_models
 
-Country, Region, City = get_cities_models()
+Country, Region, City, Commune = get_cities_models()
 
 
 class CountryAdmin(admin.ModelAdmin):
@@ -92,3 +92,37 @@ class CityAdmin(admin.ModelAdmin):
         return CityChangeList
 
 admin.site.register(City, CityAdmin)
+
+
+class CommuneChangeList(ChangeList):
+    def get_queryset(self, request):
+        if 'q' in list(request.GET.keys()):
+            request.GET = copy(request.GET)
+            request.GET['q'] = to_search(request.GET['q'])
+        return super(CommuneChangeList, self).get_queryset(request)
+    # Django <1.8 compat
+    get_query_set = get_queryset
+
+
+class CommuneAdmin(admin.ModelAdmin):
+    """
+    ModelAdmin for Commune.
+    """
+    list_display = (
+        'name',
+        'region',
+        'country',
+    )
+    search_fields = (
+        'search_names',
+    )
+    list_filter = (
+        'country__continent',
+        'country',
+    )
+    form = CommuneForm
+
+    def get_changelist(self, request, **kwargs):
+        return CommuneChangeList
+
+admin.site.register(Commune, CommuneAdmin)

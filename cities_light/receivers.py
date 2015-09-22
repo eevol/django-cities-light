@@ -75,6 +75,9 @@ def connect_default_signals(model_class):
     if 'Region' in model_class.__name__:
         signals.pre_save.connect(set_name_ascii, sender=model_class)
         signals.pre_save.connect(set_display_name, sender=model_class)
+    if 'Commune' in model_class.__name__:
+        signals.pre_save.connect(set_name_ascii, sender=model_class)
+        signals.pre_save.connect(set_display_name, sender=model_class)
     if 'City' in model_class.__name__:
         signals.pre_save.connect(set_name_ascii, sender=model_class)
         signals.pre_save.connect(set_display_name, sender=model_class)
@@ -93,6 +96,19 @@ def filter_non_cities(sender, items, **kwargs):
     if 'PPL' not in items[7]:
         raise InvalidItems()
 city_items_pre_import.connect(filter_non_cities)
+
+
+def filter_non_communes(sender, items, **kwargs):
+    """
+    Reports non third-order administrative divisions as invalid
+    By default, this reciever is connected to
+    :py:func:`~cities_light.signals.commune_items_pre_import`, it raises
+    :py:class:`~cities_light.exceptions.InvalidItems` if the row doesn't have
+    ADM3 in its features (it's not a third-order administrative division).
+    """
+    if 'ADM3' not in items[8]:
+        raise InvalidItems()
+city_items_pre_import.connect(filter_non_communes)
 
 
 def filter_non_included_countries_country(sender, items, **kwargs):

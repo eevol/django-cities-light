@@ -170,3 +170,39 @@ class AbstractCity(Base):
                 self.country.name)
         else:
             return '%s, %s' % (self.name, self.country.name)
+
+
+class AbstractCommune(Base):
+    """
+    Base commune model.
+    """
+
+    name = models.CharField(max_length=200, db_index=True)
+    display_name = models.CharField(max_length=200)
+
+    search_names = ToSearchTextField(max_length=4000,
+                                     db_index=INDEX_SEARCH_NAMES, blank=True, default='')
+
+    latitude = models.DecimalField(max_digits=8, decimal_places=5,
+                                   null=True, blank=True)
+    longitude = models.DecimalField(max_digits=8, decimal_places=5,
+                                    null=True, blank=True)
+
+    region = models.ForeignKey(CITIES_LIGHT_APP_NAME + '.Region', blank=True,
+                               null=True)
+    country = models.ForeignKey(CITIES_LIGHT_APP_NAME + '.Country')
+    population = models.BigIntegerField(null=True, blank=True, db_index=True)
+    feature_code = models.CharField(max_length=10, null=True, blank=True,
+                                    db_index=True)
+
+    class Meta(Base.Meta):
+        unique_together = (('region', 'name'), ('region', 'slug'))
+        verbose_name_plural = _('communes')
+        abstract = True
+
+    def get_display_name(self):
+        if self.region_id:
+            return '%s, %s, %s' % (self.name, self.region.name,
+                                   self.country.name)
+        else:
+            return '%s, %s' % (self.name, self.country.name)
