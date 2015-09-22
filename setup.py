@@ -18,7 +18,7 @@ setup(
     version='3.1.2-eevol',
     description='Fork of django-cities-light extended with commune import',
     author='James Pic,Dominick Rivard,Alexey Evseev,Jakob Drangmeister',
-    author_email='jamespic@gmail.com, dominick.rivard@gmail.com, myhappydo@gmail.com','jakob@eevol.lu'
+    author_email='jamespic@gmail.com, dominick.rivard@gmail.com, myhappydo@gmail.com, jakob@eevol.lu',
     url='https://github.com/eevol/django-cities-light',
     packages=find_packages(),
     include_package_data=True,
